@@ -65,11 +65,12 @@ process.env.SERVER_ROOT = app.isPackaged
   ? path.join(appRoot, 'app.asar', 'server', 'dist')
   : path.join(appRoot, 'server', 'dist');
 
-const { startServer } = await import(
-  app.isPackaged
-    ? path.join(appRoot, 'app.asar', 'server', 'dist', 'index.js')
-    : path.join(appRoot, 'server', 'dist', 'index.js')
-);
+const serverEntry = app.isPackaged
+  ? path.join(appRoot, 'app.asar', 'server', 'dist', 'index.js')
+  : path.join(appRoot, 'server', 'dist', 'index.js');
+
+const { pathToFileURL } = await import('url');
+const { startServer } = await import(pathToFileURL(serverEntry).href);
 
 let serverPort: number;
 try {
