@@ -1,0 +1,40 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build frontend
+        run: npm run build:client
+
+      - name: Build server
+        run: npm run build:server
+
+      - name: Build Electron
+        run: npm run build:electron-main
+
+      - name: Package Windows installer
+        run: npx electron-builder --win --x64
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-ShotLive-Windows
+          path: release/*.exe
+          if-no-files-found: error
